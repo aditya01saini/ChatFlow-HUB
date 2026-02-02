@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  </head>
+  <body>
+    <h2>Socket Test</h2>
+
+    <input id="chatId" placeholder="CHAT_ID" />
+    <input id="msg" placeholder="Message" />
+    <button onclick="join()">Join Chat</button>
+    <button onclick="send()">Send</button>
+
+    <ul id="messages"></ul>
+
+    <script>
+      const USER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODA0YTQ4NjAyM2NkNjZmYmYwZmI4ZSIsImlhdCI6MTc3MDA0MDczOSwiZXhwIjoxNzcwNjQ1NTM5fQ.BX-36vFeUW9NnQrvr6tz0fozB0nYzf16JFtk5C82ARA";
+
+      const socket = io("http://localhost:5000", {
+        auth: { token: USER_TOKEN },
+      });
+
+      socket.on("connect", () => {
+        console.log(" Socket connected");
+      });
+
+      socket.on("receive_message", (data) => {
+        const li = document.createElement("li");
+        li.innerText = data.sender + ": " + data.message;
+        document.getElementById("messages").appendChild(li);
+      });
+
+      socket.on("user_typing", (name) => {
+        console.log(name + " is typing...");
+      });
+
+      function join() {
+        const chatId = document.getElementById("chatId").value;
+        socket.emit("join_chat", chatId);
+      }
+
+      function send() {
+        const chatId = document.getElementById("chatId").value;
+        const msg = document.getElementById("msg").value;
+        socket.emit("send_message", { chatId, message: msg });
+      }
+    </script>
+  </body>
+</html>
